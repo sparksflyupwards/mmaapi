@@ -3,14 +3,13 @@ const cheerio = require('cheerio');
 const { table } = require('console');
 const fs = require('fs')
 const lineReader = require('line-reader');
+
+
+
+
 fights = [];
 total_fights = 0
-
-lineReader.eachLine('eventlinks.txt', function(line) {
-    let url = line;
-
-
-//fight data object
+counter = 0;
         /**
          * {
          * result:[String],
@@ -31,7 +30,6 @@ lineReader.eachLine('eventlinks.txt', function(line) {
          * end_time: [string]
          * }
          */
-
 //helper functions
 function isNumeric(str) {
     if (typeof str != "string") return false // we only process strings!  
@@ -40,8 +38,9 @@ function isNumeric(str) {
   }
 
 
-
-
+//lineReader.eachLine('eventlinks.txt', function(line) {
+  //  let url = line;
+url = 'http://www.ufcstats.com/event-details/154a6b3ffae264cd';
 rp(url)
   .then(function(html){
     //success!
@@ -80,19 +79,38 @@ rp(url)
 
             }
 
+           
+
             fights.push(fight);
       });
     
       total_fights +=fights.length
 
       console.log("now: "+total_fights)
-     // fs.appendFileSync('fights.json', JSON.stringify(fights));
+      
+      let event_title = $('body > section > div > h2 > span').text();
+      event_title = event_title.replace(/\s\s+/g, ' ');
+      console.log(event_title)
+
+
+      fs.appendFileSync('fights'+counter+'.json', "{ \"event_title\": \"");
+      fs.appendFileSync('fights'+counter+'.json', event_title);
+      fs.appendFileSync('fights'+counter+'.json', "\", \"total_fights\":"+total_fights+", \"fights\" :[\n");
+      
+      for(some_fight of fights){
+        fs.appendFileSync('fights'+counter+'.json', JSON.stringify(some_fight));
+        fs.appendFileSync('fights'+counter+'.json', ",\n");
+  
+      }
+      fs.appendFileSync('fights'+counter+'.json', "\n] \n}");
+     
+      counter = counter +1;
       
   })
   .catch(function(err){
     //handle error
   });
-});
+//});
 
 
 
