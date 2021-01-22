@@ -1,7 +1,11 @@
 const rp = require('request-promise');
 const cheerio = require('cheerio');
 const { table } = require('console');
-const url = 'http://www.ufcstats.com/event-details/18f5669a92e99d92';
+const fs = require('fs')
+const lineReader = require('line-reader');
+fights = [];
+lineReader.eachLine('eventlinks.txt', function(line) {
+    const url = line;
 
 
 
@@ -41,7 +45,6 @@ rp(url)
   .then(function(html){
     //success!
     $ = cheerio.load(html);
-    fights = [];
     // lets run through every row in the table and store the data into fights array
     table_body = $('body > section > div > div > table > tbody > tr').each(function (i, elem) {
         table_row = $(this).text();
@@ -78,12 +81,16 @@ rp(url)
 
             fights.push(fight);
       });
-    console.log(fights[2])
     
     
-
-     
+      console.log(fights)
+      fs.appendFileSync('fights.json', JSON.stringify(fights));
+      
   })
   .catch(function(err){
     //handle error
   });
+});
+
+
+
