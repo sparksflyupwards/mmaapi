@@ -4,9 +4,10 @@ const { table } = require('console');
 const fs = require('fs')
 const lineReader = require('line-reader');
 fights = [];
-lineReader.eachLine('eventlinks.txt', function(line) {
-    const url = line;
+total_fights = 0
 
+lineReader.eachLine('eventlinks.txt', function(line) {
+    let url = line;
 
 
 //fight data object
@@ -82,9 +83,10 @@ rp(url)
             fights.push(fight);
       });
     
-    
-      console.log(fights)
-      fs.appendFileSync('fights.json', JSON.stringify(fights));
+      total_fights +=fights.length
+
+      console.log("now: "+total_fights)
+     // fs.appendFileSync('fights.json', JSON.stringify(fights));
       
   })
   .catch(function(err){
