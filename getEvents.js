@@ -1,6 +1,8 @@
 const rp = require('request-promise');
 const cheerio = require('cheerio');
 const { table } = require('console');
+const fs = require('fs')
+
 
 ufc_events = [];
 
@@ -27,12 +29,13 @@ rp(url)
      * body > section > div > div > div > div.b-statistics__sub-inner > div > table > tbody > tr
      */
 
-    
+    count = 0;
     table_body = $('body > section > div > div > div > div.b-statistics__sub-inner > div > table > tbody > tr > td > i > a').each(function(i,elem) {
    
         event_row = $(this).text();
         var link = $(elem).attr('href');
-        console.log(link)
+        count +=1;
+       // console.log(link)
         /** 
         //lets clean the data
         //remove extra spaces
@@ -44,12 +47,14 @@ rp(url)
         ufc_events.push(link)
 
     })
-    
-    
+    console.log(ufc_events.length)
+    fs.appendFile('events.txt', ufc_events, function (err) {
+      if (err) throw err;
+      console.log('Saved!');
+    });
     
   })
   .catch(function(err){
     //handle error
   });
 }
-console.log(ufc_events)
