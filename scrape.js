@@ -160,7 +160,7 @@ let love =0;
 
 let links = [];
 readLinksPromise = new Promise((resolve, reject) =>{
-    lineReader.eachLine('eventlinks.txt', function(line,last) {
+    lineReader.eachLine('events2.txt', function(line,last) {
         links.push(line);
         if(last){
             resolve(links);
