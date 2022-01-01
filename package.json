@@ -1,0 +1,8 @@
+{
+  "dependencies": {
+    "axios": "^0.24.0",
+    "cheerio": "^1.0.0-rc.10",
+    "line-reader": "^0.4.0",
+    "request-promise": "^4.2.6"
+  }
+}
