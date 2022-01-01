@@ -18,28 +18,27 @@ const scrapeAllFighers = async ()=>{
  
 
             $ = cheerio.load(response.data);
-            //console.log(response.data)
+            //parses through each table cell
             table_body =  $('body > section > div > div > div > table > tbody > tr').each((i, elem) => {
+
+           
+            
                 //format the elements data into an array slicing out the spaces
                 table_row = $(elem).text();
                 table_row_array  = table_row.split("\n").filter((str)=>{return /\S/.test(str)});
                 table_row_array=table_row_array.map((str)=>{ return str.trim()});
-                //console.log(table_row_array)
-        /** 
-        <td class="b-statistics__table-col">
-          <a href="http://ufcstats.com/fighter-details/93fe7332d16c6ad9" class="b-link b-link_style_black">Tom</a>
-        </td>
-
-        */
+ 
                 //find link for more figher info
-                console.log("Link: " )
-                
                 let link = $(elem).children('.b-statistics__table-col').children().attr('href');
                   
-            
+                
+                //if link undefined then the row is not a figher
                 let fighter_id = "";
                 if(link){
                     fighter_id =  link.slice(36,)
+                }
+                else {
+                    return;
                 }
                     
                   
@@ -60,6 +59,7 @@ const scrapeAllFighers = async ()=>{
                 }
                 
                 console.log(fighter)
+                return
             })
 
         })
