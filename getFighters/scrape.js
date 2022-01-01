@@ -82,12 +82,31 @@ const scrapeAllFighers = async ()=>{
     
 }
 
+/** 
 scrapeAllFighers().then((ufc_fighters)=>{
-    const db_url = 'mongodb://127.0.0.1:27017';
+    
 
 
+    const writeFigthersToDB = ()=>{
+        const db_url = 'mongodb://127.0.0.1:27017';
+        MongoClient.connect(url, {
+            useNewUrlParser: true,
+            useUnifiedTopology: true
+        }, (err, client) => {
+            if (err) {
+                return console.log(err);
+            }
+        
+            // Specify database you want to access
+            const db = client.db('FightStats');
 
+            const fighters = db.collection('fighters');
+            fighters.insertMany(ufc_fighters, (err, result) => { console.log(err); });
+        
+            console.log(`MongoDB Connected: ${url}`);
+        });
 
+    }
 
     const writeFightersToFile = ()=>{
         fs.appendFileSync('fighters.txt', JSON.stringify(ufc_fighters),
@@ -98,3 +117,120 @@ scrapeAllFighers().then((ufc_fighters)=>{
     }
  
 });
+*/
+
+
+const writeFigthersToDB = async ()=>{
+    let ufc_fighters =[
+        {
+            name: 'Cyril Asker',
+            nick_name: 'Silverback',
+            height: `6' 0"`,
+            weight: '247 lbs.',
+            reach: '74.0"',
+            stance: 'Orthodox',
+            total_wins: '9',
+            total_losses: '4',
+            total_draws: '0',
+            fighter_id: '9be6020024133293',
+            link: 'http://ufcstats.com/fighter-details/9be6020024133293'
+          },
+          {
+            name: 'Khusein Askhabov',
+            nick_name: 'Lion',
+            height: `5' 8"`,
+            weight: '145 lbs.',
+            reach: '--',
+            stance: '23',
+            total_wins: '0',
+            total_losses: '0',
+            total_draws: undefined,
+            fighter_id: '5c10da56d712ac9c',
+            link: 'http://ufcstats.com/fighter-details/5c10da56d712ac9c'
+          },
+          {
+            name: 'Scott Askham',
+            nick_name: `6' 3"`,
+            height: '185 lbs.',
+            weight: '75.0"',
+            reach: 'Southpaw',
+            stance: '14',
+            total_wins: '4',
+            total_losses: '0',
+            total_draws: undefined,
+            fighter_id: '06827d70c53ff0d9',
+            link: 'http://ufcstats.com/fighter-details/06827d70c53ff0d9'
+          },
+          {
+            name: 'Ben Askren',
+            nick_name: 'Funky',
+            height: `5' 11"`,
+            weight: '170 lbs.',
+            reach: '73.0"',
+            stance: 'Orthodox',
+            total_wins: '19',
+            total_losses: '2',
+            total_draws: '0',
+            fighter_id: '0b31f87be71ebbb1',
+            link: 'http://ufcstats.com/fighter-details/0b31f87be71ebbb1'
+          },
+          {
+            name: 'Josh Appelt',
+            nick_name: `5' 10"`,
+            height: '255 lbs.',
+            weight: '--',
+            reach: 'Southpaw',
+            stance: '15',
+            total_wins: '7',
+            total_losses: '0',
+            total_draws: undefined,
+            fighter_id: '0c1a04afca64e38f',
+            link: 'http://ufcstats.com/fighter-details/0c1a04afca64e38f'
+          }
+
+    ]
+
+    /** 
+    const db_url = 'mongodb://127.0.0.1:27017';
+    MongoClient.connect(db_url, {
+        useNewUrlParser: true,
+        useUnifiedTopology: true
+    }, (err, client) => {
+        if (err) {
+            return console.log(err);
+        }
+    
+        // Specify database you want to access
+        const db = client.db('FightStats');
+
+        const fighters = db.collection('fighters');
+        fighters.find().toArray((err, results) => {
+            console.log(results);
+        });
+         fighters.insertMany(ufc_fighters, (err, result) => { console.log(err); });
+         fighters.find().toArray((err, results) => {
+            console.log(results);
+        });
+        console.log(`MongoDB Connected: ${url}`);
+    });
+    */
+
+    const { MongoClient } = require('mongodb');
+const uri = "mongodb+srv://admin:<<<PASSWORD>>>@cluster0.ks3d7.mongodb.net/myFirstDatabase?retryWrites=true&w=majority";
+const client = new MongoClient(uri, { useNewUrlParser: true, useUnifiedTopology: true });
+await client.connect(async (err) => {
+  const fighters = client.db("MMAStats").collection("fighters");
+  await fighters.insertMany(ufc_fighters, (err, result) => { console.log(err); });
+  // perform actions on the collection object
+  client.close();
+});
+
+
+
+}
+
+writeFigthersToDB().then((res)=>{
+console.log(res)
+});
+
+
