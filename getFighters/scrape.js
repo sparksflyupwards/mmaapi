@@ -25,19 +25,24 @@ const scrapeAllFighers = async ()=>{
                 table_row_array  = table_row.split("\n").filter((str)=>{return /\S/.test(str)});
                 table_row_array=table_row_array.map((str)=>{ return str.trim()});
                 //console.log(table_row_array)
+        /** 
+        <td class="b-statistics__table-col">
+          <a href="http://ufcstats.com/fighter-details/93fe7332d16c6ad9" class="b-link b-link_style_black">Tom</a>
+        </td>
 
+        */
                 //find link for more figher info
                 console.log("Link: " )
-                let link = $('body > section > div > div > div > table > tbody > tr').children('.b-statistics__table-col').siblings().attr('href');
-                //console.log(link)
-                /** 
-                var link = $(elem).children().each((idx, childElem)=>{
-                    console.log($(childElem).children('b-statistics__table-col'))
-                })
-                */
-               // console.log(link)
-        
-                //console.log(link)
+                
+                let link = $(elem).children('.b-statistics__table-col').children().attr('href');
+                  
+            
+                let fighter_id = "";
+                if(link){
+                    fighter_id =  link.slice(36,)
+                }
+                    
+                  
                 //formulate the figher into an object
                 let fighter = {
                     name: table_row_array[0] + " " + table_row_array[1],
@@ -48,9 +53,12 @@ const scrapeAllFighers = async ()=>{
                     stance: table_row_array[6],
                     total_wins: table_row_array[7],
                     total_losses: table_row_array[8],
-                    total_draws: table_row_array[9]
+                    total_draws: table_row_array[9],
+                    fighter_id: fighter_id,
+                    link: link
 
                 }
+                
                 console.log(fighter)
             })
 
