@@ -4,9 +4,11 @@ const { table } = require('console');
 const fs = require('fs')
 const lineReader = require('line-reader');
 const { resolve } = require('path');
+const MongoClient = require('mongodb').MongoClient;
 
 
 
+const ufc_fighters = [];
 
 const scrapeAllFighers = async ()=>{
     const letters = "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
@@ -66,7 +68,7 @@ const scrapeAllFighers = async ()=>{
                         link: link
     
                     }
-                    
+                    ufc_fighters.push(fighter);
                     //console.log(fighter)
                     return
                 })
@@ -75,7 +77,24 @@ const scrapeAllFighers = async ()=>{
         }
        
     }
+
+    return ufc_fighters;
     
 }
 
-scrapeAllFighers();
+scrapeAllFighers().then((ufc_fighters)=>{
+    const db_url = 'mongodb://127.0.0.1:27017';
+
+
+
+
+
+    const writeFightersToFile = ()=>{
+        fs.appendFileSync('fighters.txt', JSON.stringify(ufc_fighters),
+        (err)=>{
+           if (err) throw err;
+           console.log('Saved!');
+         });
+    }
+ 
+});
