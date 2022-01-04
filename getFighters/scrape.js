@@ -5,6 +5,8 @@ const fs = require("fs");
 const lineReader = require("line-reader");
 const { resolve } = require("path");
 const MongoClient = require("mongodb").MongoClient;
+const dotenv = require("dotenv");
+dotenv.config();
 
 const ufc_fighters = [];
 
@@ -85,9 +87,9 @@ const scrapeAllFighers = async () => {
             link: link,
           };
 
-          console.log(fighter);
+          //  console.log(fighter);
           ufc_fighters.push(fighter);
-          console.log(ufc_fighters);
+          // console.log(ufc_fighters);
           return;
         });
       });
@@ -99,8 +101,11 @@ const scrapeAllFighers = async () => {
 scrapeAllFighers().then((ufc_fighters) => {
   const writeFightersToDB = async (fightersToWrite) => {
     const { MongoClient } = require("mongodb");
+    const DB_password = process.env.DATABASEPASSWORD;
     const uri =
-      "mongodb+srv://admin:<<Password>>@cluster0.ks3d7.mongodb.net/myFirstDatabase?retryWrites=true&w=majority";
+      "mongodb+srv://admin:" +
+      DB_password +
+      "@cluster0.ks3d7.mongodb.net/myFirstDatabase?retryWrites=true&w=majority";
     const client = new MongoClient(uri, {
       useNewUrlParser: true,
       useUnifiedTopology: true,
@@ -167,92 +172,4 @@ scrapeAllFighers().then((ufc_fighters) => {
   writeFightersToDBDriver(ufc_fighters);
 });
 
-const writeFightersToDBTest = async () => {
-  let ufc_fighters = [
-    {
-      name: "Cyril Asker",
-      nick_name: "Silverback",
-      height: `6' 0"`,
-      weight: "247 lbs.",
-      reach: '74.0"',
-      stance: "Orthodox",
-      total_wins: "9",
-      total_losses: "4",
-      total_draws: "0",
-      fighter_id: "9be6020024133293",
-      link: "http://ufcstats.com/fighter-details/9be6020024133293",
-    },
-    {
-      name: "Khusein Askhabov",
-      nick_name: "Lion",
-      height: `5' 8"`,
-      weight: "145 lbs.",
-      reach: "--",
-      stance: "23",
-      total_wins: "0",
-      total_losses: "0",
-      total_draws: undefined,
-      fighter_id: "5c10da56d712ac9c",
-      link: "http://ufcstats.com/fighter-details/5c10da56d712ac9c",
-    },
-    {
-      name: "Scott Askham",
-      nick_name: `6' 3"`,
-      height: "185 lbs.",
-      weight: '75.0"',
-      reach: "Southpaw",
-      stance: "14",
-      total_wins: "4",
-      total_losses: "0",
-      total_draws: undefined,
-      fighter_id: "06827d70c53ff0d9",
-      link: "http://ufcstats.com/fighter-details/06827d70c53ff0d9",
-    },
-    {
-      name: "Ben Askren",
-      nick_name: "Funky",
-      height: `5' 11"`,
-      weight: "170 lbs.",
-      reach: '73.0"',
-      stance: "Orthodox",
-      total_wins: "19",
-      total_losses: "2",
-      total_draws: "0",
-      fighter_id: "0b31f87be71ebbb1",
-      link: "http://ufcstats.com/fighter-details/0b31f87be71ebbb1",
-    },
-    {
-      name: "Josh Appelt",
-      nick_name: `5' 10"`,
-      height: "255 lbs.",
-      weight: "--",
-      reach: "Southpaw",
-      stance: "15",
-      total_wins: "7",
-      total_losses: "0",
-      total_draws: undefined,
-      fighter_id: "0c1a04afca64e38f",
-      link: "http://ufcstats.com/fighter-details/0c1a04afca64e38f",
-    },
-  ];
 
-  const { MongoClient } = require("mongodb");
-  const uri =
-    "mongodb+srv://admin:<PASSWORD>@cluster0.ks3d7.mongodb.net/myFirstDatabase?retryWrites=true&w=majority";
-  const client = new MongoClient(uri, {
-    useNewUrlParser: true,
-    useUnifiedTopology: true,
-  });
-  await client.connect(async (err) => {
-    const fighters = client.db("MMAStats").collection("fighters");
-    await fighters.insertMany(ufc_fighters, (err, result) => {
-      console.log(err);
-    });
-    // perform actions on the collection object
-    client.close();
-  });
-};
-
-//writeFightersToDB().then((res)=>{
-//console.log(res)
-//});
