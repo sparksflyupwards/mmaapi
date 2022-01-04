@@ -84,7 +84,6 @@ const scrapeAllFighers = async () => {
             total_losses: row_to_array_pruned[8],
             total_draws: row_to_array_pruned[9],
             fighter_id: fighter_id,
-            link: link,
           };
 
           //  console.log(fighter);
