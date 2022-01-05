@@ -8,15 +8,33 @@ const MongoClient = require("mongodb").MongoClient;
 const dotenv = require("dotenv");
 dotenv.config();
 
-
-
-//TODO: get all fight id
 const scrapeFighterStats = async (fighter) => {
   const url = "http://ufcstats.com/fighter-details/" + fighter.fighter_id;
   console.log(url);
   await axios.get(url).then((response) => {
     $ = cheerio.load(response.data);
-    //parses through each table cell if there are cells on this page else ends scraping of the letter
+
+    //add the DOB
+    const fighter_details_selector =
+      "body > section > div > div > div.b-list__info-box.b-list__info-box_style_small-width.js-guide > ul";
+    $(fighter_details_selector).each((i, elem) => {
+      //format the elements data into an array slicing out the spaces
+      table_row = $(elem).text();
+      const row_to_array_by_spaces = table_row.split("\n");
+      //start pruning by removing every empty element
+      let row_to_array_pruned = row_to_array_by_spaces.filter((str) =>
+        str.trim().length == 0 ? false : true
+      );
+      //finally try remaining elements
+      row_to_array_pruned = row_to_array_pruned.map((str) => str.trim());
+      //console.log(row_to_array_pruned)
+
+      //store the DOB.
+      const date = row_to_array_pruned[row_to_array_pruned.length - 1];
+      fighter.date_of_birth = date;
+    });
+
+    //add the stat object to fighter
     const career_stats_selector =
       "body > section > div > div > div.b-list__info-box.b-list__info-box_style_middle-width.js-guide.clearfix > div.b-list__info-box-left.clearfix";
 
@@ -28,32 +46,7 @@ const scrapeFighterStats = async (fighter) => {
       return -1;
     }
 
-
-      //add the DOB
-      const fighter_details_selector = "body > section > div > div > div.b-list__info-box.b-list__info-box_style_small-width.js-guide > ul"
-      $(fighter_details_selector)
-      .each((i, elem) => {
-          //format the elements data into an array slicing out the spaces
-        table_row = $(elem).text();
-        const row_to_array_by_spaces = table_row.split("\n");
-        //start pruning by removing every empty element
-        let row_to_array_pruned = row_to_array_by_spaces.filter((str) =>
-          str.trim().length == 0 ? false : true
-        );
-        //finally try remaining elements
-        row_to_array_pruned = row_to_array_pruned.map((str) => str.trim());
-        console.log(row_to_array_pruned)
-        
-        //store the DOB.
-        const date = row_to_array_pruned[row_to_array_pruned.length - 1 ];
-        fighter.date_of_birth = date;
-      }
-      )
-
-
-    //add the stat object to fighter
-    $(career_stats_selector)
-                        .each((i, elem) => {
+    $(career_stats_selector).each((i, elem) => {
       //format the elements data into an array slicing out the spaces
       table_row = $(elem).text();
       const row_to_array_by_spaces = table_row.split("\n");
@@ -99,15 +92,21 @@ const scrapeFighterStats = async (fighter) => {
       fighter.stats = fighter_stats;
     });
 
+    //add all fight_id's
+    const fight_history_selector =
+      "body > section > div > div > table > tbody > tr";
+    const fight_history = [];
+    $(fight_history_selector).each((i, elem) => {
+      const fight_link = $(elem).attr("data-link");
+      if (fight_link) {
+        fight_history.push(fight_link.slice(fight_link.length - 16));
+      }
+    });
 
-    
+    fighter.fight_history_ids = fight_history;
 
-  
-
-   console.log(fighter);
+    console.log(fighter);
     return fighter;
-
-
   });
 };
 
