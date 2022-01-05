@@ -8,6 +8,9 @@ const MongoClient = require("mongodb").MongoClient;
 const dotenv = require("dotenv");
 dotenv.config();
 
+//TODO: test stats for fighters with missing stats
+//TODO: get Date of birth
+//TODO: get all fight id
 const scrapeFighterStats = async (fighter) => {
   const url = "http://ufcstats.com/fighter-details/" + fighter.fighter_id;
   console.log(url);
@@ -56,6 +59,18 @@ const scrapeFighterStats = async (fighter) => {
         fighter_stats[row_to_array_pruned[i]] = row_to_array_pruned[i + 1];
       }
 
+      //if stats values are zero'd out then indicate that this stat object is incomplete
+      let incomplete = true;
+      let stat_values = Object.values(fighter_stats);
+      for (let stat of stat_values) {
+        //if entry doesnt start with a zero its a valid entry and we can keep the stats object
+        if (stat.slice(0, 2) != "0." && stat.slice(0, 2) != "0%") {
+          incomplete = false;
+        }
+      }
+      console.log(fighter_stats);
+      fighter_stats.incomplete = incomplete;
+
       //formulate the figher into an object
       fighter.stats = fighter_stats;
 
@@ -97,6 +112,22 @@ const fighters = [
     total_losses: "6",
     total_draws: "0",
     fighter_id: "f4c49976c75c5ab2",
+  },
+  {
+    _id: {
+      $oid: "61d4c06555366272048391fb",
+    },
+    first_name: "Scott",
+    last_name: "McDonald",
+    nick_name: "--",
+    height: "--",
+    weight: "--",
+    reach: "--",
+    stance: "--",
+    total_wins: "1",
+    total_losses: "0",
+    total_draws: "0",
+    fighter_id: "08ae3100bf2100ed",
   },
 ];
 
