@@ -8,8 +8,8 @@ const MongoClient = require("mongodb").MongoClient;
 const dotenv = require("dotenv");
 dotenv.config();
 
-//TODO: test stats for fighters with missing stats
-//TODO: get Date of birth
+
+
 //TODO: get all fight id
 const scrapeFighterStats = async (fighter) => {
   const url = "http://ufcstats.com/fighter-details/" + fighter.fighter_id;
@@ -17,18 +17,43 @@ const scrapeFighterStats = async (fighter) => {
   await axios.get(url).then((response) => {
     $ = cheerio.load(response.data);
     //parses through each table cell if there are cells on this page else ends scraping of the letter
-    const table_row_selector =
+    const career_stats_selector =
       "body > section > div > div > div.b-list__info-box.b-list__info-box_style_middle-width.js-guide.clearfix > div.b-list__info-box-left.clearfix";
 
     //if selector returns empty array of elements finish scraping and return error
-    if ($(table_row_selector).length <= 0) {
+    if ($(career_stats_selector).length <= 0) {
       console.log(
         "failed to load fighter data for fighter: " + fighter.fighter_id
       );
       return -1;
     }
 
-    table_body = $(table_row_selector).each((i, elem) => {
+
+      //add the DOB
+      const fighter_details_selector = "body > section > div > div > div.b-list__info-box.b-list__info-box_style_small-width.js-guide > ul"
+      $(fighter_details_selector)
+      .each((i, elem) => {
+          //format the elements data into an array slicing out the spaces
+        table_row = $(elem).text();
+        const row_to_array_by_spaces = table_row.split("\n");
+        //start pruning by removing every empty element
+        let row_to_array_pruned = row_to_array_by_spaces.filter((str) =>
+          str.trim().length == 0 ? false : true
+        );
+        //finally try remaining elements
+        row_to_array_pruned = row_to_array_pruned.map((str) => str.trim());
+        console.log(row_to_array_pruned)
+        
+        //store the DOB.
+        const date = row_to_array_pruned[row_to_array_pruned.length - 1 ];
+        fighter.date_of_birth = date;
+      }
+      )
+
+
+    //add the stat object to fighter
+    $(career_stats_selector)
+                        .each((i, elem) => {
       //format the elements data into an array slicing out the spaces
       table_row = $(elem).text();
       const row_to_array_by_spaces = table_row.split("\n");
@@ -68,15 +93,21 @@ const scrapeFighterStats = async (fighter) => {
           incomplete = false;
         }
       }
-      console.log(fighter_stats);
       fighter_stats.incomplete = incomplete;
 
       //formulate the figher into an object
       fighter.stats = fighter_stats;
-
-      console.log(fighter);
-      return fighter;
     });
+
+
+    
+
+  
+
+   console.log(fighter);
+    return fighter;
+
+
   });
 };
 
@@ -128,6 +159,38 @@ const fighters = [
     total_losses: "0",
     total_draws: "0",
     fighter_id: "08ae3100bf2100ed",
+  },
+  {
+    _id: {
+      $oid: "61d4c06555366272048391fd",
+    },
+    first_name: "Josh",
+    last_name: "McDonald",
+    nick_name: "--",
+    height: "--",
+    weight: "185 lbs.",
+    reach: "--",
+    stance: "--",
+    total_wins: "9",
+    total_losses: "5",
+    total_draws: "0",
+    fighter_id: "b507a76087e3ed9f",
+  },
+  {
+    _id: {
+      $oid: "61d4c0655536627204839205",
+    },
+    first_name: "Jack",
+    last_name: "McGlaughlin",
+    nick_name: "--",
+    height: "--",
+    weight: "--",
+    reach: "--",
+    stance: "Orthodox",
+    total_wins: "1",
+    total_losses: "4",
+    total_draws: "0",
+    fighter_id: "237187ed9f419285",
   },
 ];
 
