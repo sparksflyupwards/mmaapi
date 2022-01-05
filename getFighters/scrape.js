@@ -9,7 +9,7 @@ const dotenv = require("dotenv");
 dotenv.config();
 
 const ufc_fighters = [];
-
+//TODO: NOTE DATA BASE PASSWORD MAY BE BROKEN confirm it is not
 const scrapeAllFighers = async () => {
   const letters = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
   const baseLink = "http://ufcstats.com/statistics/fighters?char=";
@@ -42,7 +42,6 @@ const scrapeAllFighers = async () => {
           let row_to_array_pruned = [];
 
           for (let i = 2; i < row_to_array_by_spaces.length; i += 3) {
-            console.log(row_to_array_by_spaces[i]);
             if (row_to_array_by_spaces[i].trim().length == 0) {
               row_to_array_pruned.push("--");
             } else {
