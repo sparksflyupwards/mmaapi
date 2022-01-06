@@ -10,7 +10,8 @@ dotenv.config();
 
 const scrapeFighterStats = async (fighter) => {
   const url = "http://ufcstats.com/fighter-details/" + fighter.fighter_id;
-  console.log(url);
+  //console.log(url);
+
   await axios.get(url).then((response) => {
     $ = cheerio.load(response.data);
 
@@ -105,11 +106,68 @@ const scrapeFighterStats = async (fighter) => {
 
     fighter.fight_history_ids = fight_history;
 
+    //resolve(fighter);
+  });
+
+  return new Promise((resolve) => {
+    console.log("from scrapeFighter()");
     console.log(fighter);
-    return fighter;
+    console.log(" ^ from scrapeFighter()");
+    resolve(fighter);
   });
 };
 
+const updateAllFighters = async () => {
+  const { MongoClient } = require("mongodb");
+  const DB_password = process.env.DATABASEPASSWORD;
+  const uri =
+    "mongodb+srv://admin:" +
+    DB_password +
+    "@cluster0.ks3d7.mongodb.net/myFirstDatabase?retryWrites=true&w=majority";
+  const client = new MongoClient(uri, {
+    useNewUrlParser: true,
+    useUnifiedTopology: true,
+  });
+  await client.connect(async (err) => {
+    if (err) {
+      console.log("db connection error");
+      console.log(err);
+      return;
+    }
+    console.log("starting writing...");
+    const db_fighters = client.db("MMAStats").collection("fighters");
+    const result = await db_fighters.find();
+    const db_fighters_arry = [];
+    if (result) {
+      await result.forEach((fighter) => db_fighters_arry.push(fighter));
+      for (fighter of db_fighters_arry) {
+        await scrapeFighterStats(fighter).then(async (updatedFighter) => {
+          console.log("we got");
+          console.log(updatedFighter);
+
+          try {
+            await db_fighters.replaceOne(
+              { _id: updatedFighter._id },
+              updatedFighter
+            );
+          } catch (err) {
+            console.log("error replacing fighter: " + fighter._id);
+            console.log(err);
+          }
+        });
+      }
+    } else {
+      console.log("no result");
+    }
+    console.log("finished writing");
+    await client.close();
+    return true;
+  });
+};
+
+updateAllFighters();
+
+/* scrapes a few specific fighters
 const fighters = [
   {
     _id: {
@@ -198,3 +256,4 @@ const fighters = [
     await scrapeFighterStats(fighter);
   }
 })();
+*/
